@@ -1,0 +1,11 @@
+name: Route
+description: Manage Dynamic Routes
+
+author: Damian Grant
+authorEmail: codebogan@gmail.com
+authorUrl: http://croogo.org
+
+dependencies:
+  plugins:
+    - acl
+    - extensions
