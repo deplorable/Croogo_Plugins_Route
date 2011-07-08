@@ -6,7 +6,7 @@ Version: 1.0
 
 Instalation
 
-	1. Upload plugin
+	1. Upload plugin files manually to the app\plugins\route folder.
 	2. Activate plugin
 	3. Ensure plugin's generated_routes/all.php file is writable by the webserver process.
 	   You can test this by going to the Extensions>Route>List Routes page and clicking on
