@@ -130,11 +130,11 @@ class RouteBehavior extends ModelBehavior {
 				$this->data['Route']['status'] = 1;
 				if ($this->Route->save($this->data)) {
 					//Saved	
-					$this->Session->setFlash(__('Route saved'), 'default', array('class' => 'error'));
+					//$this->Session->setFlash(__('Route saved'), 'default', array('class' => 'error'));
 				}
 				else {
 					//Not Saved
-					$this->Session->setFlash(__('Problem saving route'), 'default', array('class' => 'error'));
+					//$this->Session->setFlash(__('Problem saving route'), 'default', array('class' => 'error'));
 					
 				}
 			}
