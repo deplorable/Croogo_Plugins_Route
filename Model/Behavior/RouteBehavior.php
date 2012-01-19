@@ -6,13 +6,27 @@
  *
  * @category Behavior
  * @package  Croogo
- * @author   Damian Grant <codebogan@optusnet.com.au>
+ * @version  1.4
+ * @author   Damian Grant <codebogan@gmail.com>
  * @license  http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link     http://www.croogo.org
  */
 class RouteBehavior extends ModelBehavior {
 
-	public $components = array('RouteComponent');
+	/**
+	 * Components used by this Behavior
+	 *
+	 * @var array
+	 * @access public
+	 */	
+	public $components = array('CRoute');
+	
+	/**
+	 * Default filename to store custom routes in
+	 *
+	 * @var string
+	 * @access public
+	 */		
 	public $customRoutesFilenameWithoutPath = 'all.php';
 
 	/**
@@ -48,11 +62,12 @@ class RouteBehavior extends ModelBehavior {
 		
 	/**
 	 * beforeValidate callback
+	 * Invoked after a Node is saved/edited
 	 *
 	 * @param object  $model
+	 * @return boolean
 	 */
-	public function beforeValidate(&$model) {
-		//add validate fields 
+	public function beforeValidate($model) {
 		$model->validate['route_alias'] = array(
 			'aliasDoesNotExist' => array(
 				'rule' => array('doesAliasExist'),
@@ -63,10 +78,13 @@ class RouteBehavior extends ModelBehavior {
 				'message' => 'The alias must not begin with a slash or backslash character. Only alphanumeric characters, underscores, hyphens and slashes or backslashes are acceptable.',
 			),				
 		);
+		
+		return true; //we should probably check this
 	}
 	
 	/**
 	 * afterSave callback
+	 * Invoked after a Node is saved/edited
 	 *
 	 * @param object  $model
 	 * @param boolean   $created
@@ -111,13 +129,16 @@ class RouteBehavior extends ModelBehavior {
 				$this->data['Route']['body'] = "array('controller' => 'nodes', 'action' => 'view', 'type' => '".$data['type']."', ".$node_id.")";
 				$this->data['Route']['status'] = 1;
 				if ($this->Route->save($this->data)) {
-					//Saved					
+					//Saved	
+					$this->Session->setFlash(__('Route saved'), 'default', array('class' => 'error'));
 				}
 				else {
 					//Not Saved
+					$this->Session->setFlash(__('Problem saving route'), 'default', array('class' => 'error'));
+					
 				}
 			}
-	
+			clearCache();
 			$this->write_custom_routes_file();
 		}
 	}
@@ -128,7 +149,7 @@ class RouteBehavior extends ModelBehavior {
 	 * @return string
 	 */
 	function get_custom_routes_filepath() {
-		$path = APP . 'plugins' . DS . 'route' . DS . 'generated_routes' . DS . $this->customRoutesFilenameWithoutPath;
+		$path = APP . 'Plugin' . DS . 'Route' . DS . 'generated_routes' . DS . $this->customRoutesFilenameWithoutPath;
 		return $path;
 	}
 	
@@ -196,9 +217,9 @@ class RouteBehavior extends ModelBehavior {
 		$resultArray['code'] = '';			
 	
 		try {
-			$permissions = fileperms ( $path );
-			$fileowner = fileowner($path);
-			$filegroup = filegroup($path);
+			$permissions = @fileperms ( $path );
+			$fileowner = @fileowner($path);
+			$filegroup = @filegroup($path);
 			$fileownerarray = posix_getpwuid($fileowner);
 			$filegrouparray = posix_getgrgid($filegroup);
 			$webserver_process_user_array = posix_getpwuid(posix_geteuid());
@@ -217,17 +238,31 @@ class RouteBehavior extends ModelBehavior {
 				}
 			}
 			else {
-				$this->Session->setFlash('Route Plugin: Cannot overwrite '.$path);
 				$resultArray['output'] .= "<h3 style='color: red;'>Cannot overwrite ".basename($path)."!</h3>";
 				$resultArray['output'] .= "<strong style='color: red;'>Please ensure file is writable by the webserver process.</strong>";					
 				$resultArray['output'] .= "<BR><BR>";
 				$resultArray['output'] .= "<strong>File Location: </strong>".$path;					
 				$resultArray['output'] .= "<BR>";					
-				$resultArray['output'] .= "<strong>File Permissions are: </strong>". substr(sprintf('%o', $permissions), -4);
+				if ($permissions != 0) {
+					$resultArray['output'] .= "<strong>File Permissions are: </strong>". substr(sprintf('%o', $permissions), -4);
+				}
+				else {
+					$resultArray['output'] .= "<strong>File Permissions are: </strong> Unknown (permissions issue?)";
+				}
 				$resultArray['output'] .= "<BR>";
-				$resultArray['output'] .= "<strong>File Mask is: </strong>".$this->_resolveperms($permissions);
+				if ($permissions == 0) {
+					$resultArray['output'] .= "<strong>File Mask is: </strong> Unknown (permissions issue?)";
+				}
+				else {
+					$resultArray['output'] .= "<strong>File Mask is: </strong>".$this->_resolveperms($permissions);
+				}
 				$resultArray['output'] .= "<BR>";
-				$resultArray['output'] .= "<strong>Owned by User: </strong>".$fileownerarray['name'];
+				if ($fileowner === false) {
+					$resultArray['output'] .= "<strong>Owned by User: </strong> Unknown (permissions issue?)";
+				}
+				else {
+					$resultArray['output'] .= "<strong>Owned by User: </strong>".$fileownerarray['name'];
+				}
 				$resultArray['output'] .= "<BR>";					
 				$resultArray['output'] .= "<strong>Owned by Group: </strong>".$filegrouparray['name'];					
 				$resultArray['output'] .= "<BR>";					
@@ -249,6 +284,7 @@ class RouteBehavior extends ModelBehavior {
 	 */
 	function doesAliasExist($check) {
 		$check = $check->data['Node'];
+		
 		$route_alias = $check['route_alias'];
 	
 		if (!isset($check['id'])) {
@@ -292,7 +328,7 @@ class RouteBehavior extends ModelBehavior {
 		$check = $check->data['Node'];
 		$thealias = $check['route_alias'];
 		$firstchar = substr($thealias, 0, 1);
-		App::import('Sanitize');
+		App::uses('Sanitize', 'Utility');
 		$thealiassanitized = Sanitize::paranoid($thealias, array('/', '\\', '_', '-'));
 
 		if (($firstchar == "/") || ($firstchar == "\\")) {

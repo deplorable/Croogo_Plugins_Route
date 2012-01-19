@@ -79,8 +79,9 @@
 </div>
 
 <div class="paging"><?php 
-echo $this->Paginator->numbers(); 
+	echo $this->Paginator->numbers(); 
 ?></div>
+
 <div class="counter">
 	<?php 
 		echo $this->Paginator->counter(

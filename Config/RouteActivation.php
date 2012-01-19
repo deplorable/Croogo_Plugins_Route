@@ -6,7 +6,8 @@
  * This is optional, and is required only if you want to perform tasks when your plugin is activated/deactivated.
  *
  * @package  Croogo
- * @author   Damian Grant <codebogan@optusnet.com.au>
+ * @version  1.4
+ * @author   Damian Grant <codebogan@gmail.com>
  * @license  http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link     http://www.croogo.org
  */
@@ -43,8 +44,6 @@ class RouteActivation {
         $controller->Croogo->addAco('route/admin_add'); // RouteController::admin_index()				
         $controller->Croogo->addAco('route/admin_edit'); // RouteController::admin_index()								
         $controller->Croogo->addAco('route/index', array('registered', 'public')); // RouteController::index()
-
-		
 
         // Main menu: add an Route link
         $mainMenu = $controller->Link->Menu->findByAlias('main');
@@ -137,7 +136,6 @@ class RouteActivation {
 				$db->execute($drop);
 			}
 		}
-		
     }
 }
 ?>

@@ -6,8 +6,8 @@
  *
  * @category Model
  * @package  Croogo
- * @version  1.0
- * @author   Damian Grant <codebogan@optusnet.com.au>
+ * @version  1.4
+ * @author   Damian Grant <codebogan@gmail.com>
  * @license  http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link     http://www.croogo.org
  */
@@ -17,6 +17,7 @@ class Route extends RouteAppModel {
 	 * Model name
 	 *
 	 * @var string
+	 * @access public
 	 */
 	public $name = 'Route';
 	
@@ -24,15 +25,25 @@ class Route extends RouteAppModel {
 	 * Model table
 	 *
 	 * @var string
+	 * @access public
 	 */
 	public $useTable = 'routes';
 		
+	/**
+	 * Disable caching of DB sources
+	 * Setting to true causes a Missing Database Table error when you visit
+	 * the Create Route page immediately after activating this Route plugin.
+	 *
+	 * @var string
+	 * @access public
+	 */		
+	public $cacheSources = false;	
+	
 	/**
 	 * Validation
 	 *
 	 * @var array
 	 */
-	 
     var $validate = array(
 		'alias' => array(
 			'alphaNumeric' => array(
@@ -100,7 +111,6 @@ class Route extends RouteAppModel {
 	function isAliasValid($check) {
 		$thealias = $check['alias'];
 		$firstchar = substr($thealias, 0, 1);
-		//App::import('Sanitize'); old Cake 1.3 code
 		App::uses('Sanitize', 'Utility');
 		$thealiassanitized = Sanitize::paranoid($thealias, array('/', '\\', '_', '-'));
 		if (($firstchar == "/") || ($firstchar == "\\")) {
@@ -121,7 +131,6 @@ class Route extends RouteAppModel {
 	 * @param array $check
 	 * @return boolean
 	 */	 
-		
 	function isBodyValid($check) {
 		$thebody = $check['body'];
 		$testing = @eval('return '.$thebody.';');

@@ -7,8 +7,7 @@ class RouteSchema extends CakeSchema {
 		return true;
 	}
 
-	function after($event = array()) {
-	}
+	function after($event = array()) {	}
 	
 	var $routes = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 20, 'key' => 'primary'),

@@ -68,6 +68,6 @@
  *
  * Useful for adding form extra form fields if necessary.
  */
-    Croogo::hookAdminTab('Nodes/admin_add', 'Route', 'route.admin_tab_node');
-    Croogo::hookAdminTab('Nodes/admin_edit', 'Route', 'route.admin_tab_node');
+    Croogo::hookAdminTab('Nodes/admin_add', 'Route', 'Route.admin_tab_node');
+    Croogo::hookAdminTab('Nodes/admin_edit', 'Route', 'Route.admin_tab_node');
 ?>

@@ -1,7 +1,20 @@
 <?php
-class CRouteComponent extends Component{
+/**
+ * CRoute Component
+ *
+ * PHP version 5
+ *
+ * @category Component
+ * @package  Croogo
+ * @version  1.4
+ * @author   Damian Grant <codebogan@gmail.com>
+ * @license  http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @link     http://www.croogo.org
+ */
+class CRouteComponent extends Component {
 
     protected $controller = null;
+	
 	/**
 	 * Plugin name controller belongs to
 	 *
@@ -13,6 +26,7 @@ class CRouteComponent extends Component{
 	 * Other components used by this component
 	 *
 	 * @var array
+	 * @access public
 	 */	
 	public $components = array('Session');
 	

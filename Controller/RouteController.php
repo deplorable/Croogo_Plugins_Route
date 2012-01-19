@@ -6,13 +6,19 @@
  *
  * @category Controller
  * @package  Croogo
- * @version  1.0
- * @author   Damian Grant <codebogan@optusnet.com.au>
+ * @version  1.4
+ * @author   Damian Grant <codebogan@gmail.com>
  * @license  http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link     http://www.croogo.org
  */
 class RouteController extends RouteAppController {
 
+	/**
+	 * Default pagination options
+	 *
+	 * @var array
+	 * @access public
+	 */
 	public $paginate = array(
         'limit' => 25,
 		'order' => array (
@@ -20,12 +26,18 @@ class RouteController extends RouteAppController {
 		),
 	);
 	
+	/**
+	 * Plugin name
+	 *
+	 * @var string
+	 */
 	var $pluginName = 'Route';
 	
 	/**
 	 * Controller name
 	 *
 	 * @var string
+	 * @access public
 	 */
     public $name = 'Route';
 	
@@ -58,7 +70,6 @@ class RouteController extends RouteAppController {
 		
 	/**
  	 * Add route
-	 *
 	 */
 	function admin_add() {
 		$this->set('title_for_layout', __('Create route', true));				
@@ -79,15 +90,15 @@ class RouteController extends RouteAppController {
 	 * @param integer $id
 	 */
 	function admin_edit($id = null) {
-		if (!$id && empty($this->data)) {
+		if (!$id && empty($this->request->data)) {
 			$this->Session->setFlash(__('Cannot Edit - Missing Route ID', true), 'default', array('class' => 'error'));
 			$this->redirect(array('action'=>'index'));
 		}
 		
-		if (!empty($this->data)) {
-			$this->data['Route']['id'] = $id;					  
+		if (!empty($this->request->data)) {
+			$this->request->data['Route']['id'] = $id;					  
 		
-			if ($this->Route->save($this->data)) {
+			if ($this->Route->save($this->request->data)) {
 				$this->Session->setFlash(__('Route has been saved', true), 'default', array('class' => 'success'));
 				$this->redirect(array('action'=>'admin_regenerate_custom_routes_file'));				
 			} else {
@@ -96,16 +107,22 @@ class RouteController extends RouteAppController {
 			}
 		}
 		
-		if (empty($this->data)) {
+		if (empty($this->request->data)) {
 			$this->set('title_for_layout', __('Edit route', true));				
-			$this->data = $this->Route->read(null, $id);
+			$this->request->data = $this->Route->read(null, $id);
+			//if node id is not empty, load in node information
+			$linkednode = null;
+			if ($this->request->data['Route']['node_id'] != null) {
+				$linkednode = $this->Node->read(null, $this->request->data['Route']['node_id']);
+			}
+			$this->set('linkednode', $linkednode);
 		}
 	}
 		
 	/**
 	 * Delete route
 	 *
-	 * @param integer $id route id
+	 * @param integer $id (route id)
 	 */
 	function admin_delete($id = null) {
 		if (!$id) {
@@ -113,14 +130,13 @@ class RouteController extends RouteAppController {
 			$this->redirect(array('action'=>'index'));
 		}
 		if($this->Route->delete($id)) {
-			$this->Session->setFlash(__('Route successfully deleted', true), array('class' => 'success'));
+			$this->Session->setFlash(__('Route successfully deleted', true), 'default', array('class' => 'success'));
 			$this->redirect(array('action'=>'admin_regenerate_custom_routes_file'));				
 		}
 	}
 
 	/**
 	 * Route plugin index (does nothing)
-	 *
 	 */
     function index() {
     	$this->set('title_for_layout', __('Route', true));
@@ -128,7 +144,6 @@ class RouteController extends RouteAppController {
 		
 	/**
 	 * Generate custom routes file
-	 *
 	 */		
 	function admin_regenerate_custom_routes_file() {
 		$this->set('title_for_layout', __('Regenerating Custom Routes File...', true));
@@ -142,34 +157,34 @@ class RouteController extends RouteAppController {
 	
 	/**
 	 * Enable all routes
-	 *
 	 */	
 	function admin_enable_all() {
 		$this->Route->updateAll(
 			array('Route.status' => 1),
 			array('Route.status' => 0)
 		);
+		$this->Session->setFlash(__('All routes have been enabled.', true), 'default', array('class' => 'success'));
 		$this->redirect(array('action'=>'admin_regenerate_custom_routes_file'));				
 	}
 
 	/**
 	 * Disable all routes
-	 *
 	 */		
 	function admin_disable_all() {
 		$this->Route->updateAll(
 			array('Route.status' => 0),
 			array('Route.status' => 1)
 		);
+		$this->Session->setFlash(__('All routes have been disabled.', true), 'default', array('class' => 'success'));
 		$this->redirect(array('action'=>'admin_regenerate_custom_routes_file'));				
 	}
 	
 	/**
 	 * Delete all routes
-	 *
 	 */		
 	function admin_delete_all() {
 		$this->Route->deleteAll('1');
+		$this->Session->setFlash(__('All routes have been deleted!', true), 'default', array('class' => 'success'));
 		$this->redirect(array('action'=>'admin_regenerate_custom_routes_file'));				
 	}		
 }
