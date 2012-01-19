@@ -97,6 +97,14 @@ class RouteController extends RouteAppController {
 		
 		if (!empty($this->request->data)) {
 			$this->request->data['Route']['id'] = $id;					  
+			//if node id is not empty, load in node information
+			$linkednode = null;
+			
+			if ($this->request->data['Route']['node_id'] != null) {
+				$linkednode = $this->Node->read(null, $this->request->data['Route']['node_id']);
+			}
+			$this->set('linkednode', $linkednode);
+			
 		
 			if ($this->Route->save($this->request->data)) {
 				$this->Session->setFlash(__('Route has been saved', true), 'default', array('class' => 'success'));

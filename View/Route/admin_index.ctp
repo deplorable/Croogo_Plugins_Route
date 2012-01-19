@@ -1,3 +1,6 @@
+<?php 
+echo $this->Html->css('/route/css/route', 'stylesheet', array("media"=>"all" ), false);
+?>
 <div class="route index">
 	<h2><?php echo $title_for_layout; ?></h2>
 
@@ -26,6 +29,7 @@
 	
 			$rows = array();
 			foreach ($routes as $route) {
+			
 				$actions = ' ' . $this->Html->link(
 					__('Delete', true), 
 					array(
@@ -35,9 +39,9 @@
 						'token' => $this->params['_Token']['key'],
 					), 
 					null, 
-					__('Are you sure?', true)
+					__('Are you sure you want to delete this route?', true)
 				);
-	
+				
 				$actions .= ' ' . $this->Html->link(
 					__('Edit Route', true), 
 					array(
@@ -60,16 +64,28 @@
 				}
 	
 	
-				$rows[] = array(
+				$newrow = array(
 					$route['Route']['id'],
-					$this->Html->link(
-						DS . $route['Route']['alias'], 
-						DS . $route['Route']['alias']
-					),
-					substr(trim(strip_tags($route['Route']['body'])), 0, 150),
-					$this->Layout->status($route['Route']['status']),
-					$actions,
 				);
+				
+				if ($route['Route']['status'] == 1) {
+					$newrow[] = $this->Html->link(
+							DS . $route['Route']['alias'], 
+							DS . $route['Route']['alias']
+					);
+				}
+				else {
+					$newrow[] = 
+						'<span class="route_disabled_link">'.
+						DS . $route['Route']['alias'].
+						'</span>';
+				}
+					
+				$newrow[] = substr(trim(strip_tags($route['Route']['body'])), 0, 150);
+				$newrow[] = $this->Layout->status($route['Route']['status']);
+				$newrow[] = $actions;
+				
+				$rows[] = $newrow;
 			}
 	
 			echo $this->Html->tableCells($rows);

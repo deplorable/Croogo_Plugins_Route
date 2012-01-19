@@ -5,3 +5,8 @@ background-color: #EEEEEE;
 span.linkednode {
 	margin-left: 4px;
 }
+
+span.route_disabled_link {
+	text-decoration: line-through;
+	color: #cc0000;
+}

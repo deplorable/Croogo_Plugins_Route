@@ -100,6 +100,14 @@ class RouteBehavior extends ModelBehavior {
 		if ($model->alias == 'Node') {
 			$data = $model->data['Node'];
 			$route_alias = $data['route_alias'];
+			//disabled route_status checkboxes don't submit any data'
+			//assume they are disabled and checked if not defined
+			if (!isset($data['route_status'])) {
+				$route_status = 0;
+			}
+			else {
+				$route_status = $data['route_status'];
+			}
 	
 			if (isset($data['id'])) {
 				$node_id = $data['id'];
@@ -126,6 +134,8 @@ class RouteBehavior extends ModelBehavior {
 					$this->Route->id = $route_id;
 
 					$this->Route->saveField('alias', $route_alias);
+					
+					$this->Route->saveField('status', $route_status);
 
 					$this->Route->saveField('body', "array('controller' => 'nodes', 'action' => 'view', 'type' => '".$data['type']."', ".$node_id.")");
 				}
@@ -138,7 +148,7 @@ class RouteBehavior extends ModelBehavior {
 				$this->data['Route']['alias'] = $route_alias;
 				$this->data['Route']['node_id'] = $node_id;
 				$this->data['Route']['body'] = "array('controller' => 'nodes', 'action' => 'view', 'type' => '".$data['type']."', ".$node_id.")";
-				$this->data['Route']['status'] = 1;
+				$this->data['Route']['status'] = $route_status;
 				if ($this->Route->save($this->data)) {
 					//Saved	
 					//$this->Session->setFlash(__('Route saved'), 'default', array('class' => 'error'));

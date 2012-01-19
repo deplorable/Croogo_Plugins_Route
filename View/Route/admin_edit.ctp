@@ -1,5 +1,4 @@
 <?php 
-
 echo $this->Html->css('/route/css/route', 'stylesheet', array("media"=>"all" ), false);
 ?>
 <div class="route form">
@@ -10,7 +9,8 @@ echo $this->Html->css('/route/css/route', 'stylesheet', array("media"=>"all" ), 
 		<?php
 			echo $this->Form->input('alias', array('label' => __('Alias', true)));
 		
-			if ($linkednode != null) {
+			if ((isset($linkednode)) && ($linkednode != null)) {
+				echo $this->Form->input('node_id', array('type'=>'hidden'));
 		?>
 				<div class="input textarea"><label for="RouteBody">Linked to Node:</label>
 				<span class="linkednode"><?php echo $this->Html->link($linkednode['Node']['title'], array('plugin' => null, 'controller' => 'nodes', 'action' => 'edit', $linkednode['Node']['id'], '#' => 'node-route'), array('target' => '_blank')); ?> (<?= $linkednode['Node']['type']; ?> | ID: <?= $linkednode['Node']['id']; ?>)</span>

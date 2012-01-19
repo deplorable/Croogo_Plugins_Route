@@ -63,7 +63,7 @@ class CRouteComponent extends Component {
 		
 		//custom node settings 
 		if ($this->controller->name == 'Nodes') {
-			$this->controller->Security->disabledFields = array('route_alias');
+			$this->controller->Security->disabledFields = array('route_alias', 'route_status');
 		}
 	}
 
