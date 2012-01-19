@@ -11,6 +11,9 @@
  * This plugin's Route behavior will be attached whenever Node model is loaded.
  */
     Croogo::hookBehavior('Node', 'Route.Route', array());
+	
+	Croogo::hookComponent('Nodes', 'Route.CRoute');
+	
 /**
  * Admin menu (navigation)
  */

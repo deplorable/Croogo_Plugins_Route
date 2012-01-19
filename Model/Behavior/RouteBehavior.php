@@ -67,7 +67,8 @@ class RouteBehavior extends ModelBehavior {
 	 * @param object  $model
 	 * @return boolean
 	 */
-	public function beforeValidate($model) {
+	public function beforeValidate(&$model) {
+		/* these validation rules may cause validation to fail on node submit */
 		$model->validate['route_alias'] = array(
 			'aliasDoesNotExist' => array(
 				'rule' => array('doesAliasExist'),
@@ -76,11 +77,16 @@ class RouteBehavior extends ModelBehavior {
 			'aliasValid' => array(
 				'rule' => array('isAliasValid'),
 				'message' => 'The alias must not begin with a slash or backslash character. Only alphanumeric characters, underscores, hyphens and slashes or backslashes are acceptable.',
-			),				
+			),
 		);
 		
-		return true; //we should probably check this
+		return true; //we have added the validation checks we want the system to invoke
 	}
+	
+	/*public function beforeSave(&$model) {
+
+		return false;
+	}*/
 	
 	/**
 	 * afterSave callback
@@ -90,6 +96,7 @@ class RouteBehavior extends ModelBehavior {
 	 * @param boolean   $created
 	 */		
 	public function afterSave(&$model, $created) {
+
 		if ($model->alias == 'Node') {
 			$data = $model->data['Node'];
 			$route_alias = $data['route_alias'];
@@ -105,6 +112,8 @@ class RouteBehavior extends ModelBehavior {
 			$params = array('conditions' => array('Route.node_id' => $node_id));
 			$this->Route = ClassRegistry::init('Route.Route');;		
 			$matchingRoute = $this->Route->find('first', $params);
+			
+			
 			if ($matchingRoute != null) { //let's update our route with the new path 
 				if ((trim($route_alias)) == '') {
 					//empty alias - delete the route id
@@ -115,7 +124,9 @@ class RouteBehavior extends ModelBehavior {
 					//non-empty alias
 					$route_id = $matchingRoute['Route']['id'];
 					$this->Route->id = $route_id;
+
 					$this->Route->saveField('alias', $route_alias);
+
 					$this->Route->saveField('body', "array('controller' => 'nodes', 'action' => 'view', 'type' => '".$data['type']."', ".$node_id.")");
 				}
 			}
@@ -138,8 +149,11 @@ class RouteBehavior extends ModelBehavior {
 					
 				}
 			}
+
 			clearCache();
+
 			$this->write_custom_routes_file();
+			
 		}
 	}
 		
@@ -283,7 +297,9 @@ class RouteBehavior extends ModelBehavior {
 	 * @return boolean
 	 */
 	function doesAliasExist($check) {
+
 		$check = $check->data['Node'];
+		
 		
 		$route_alias = $check['route_alias'];
 	
@@ -295,7 +311,8 @@ class RouteBehavior extends ModelBehavior {
 		}
 	
 		if ($route_alias == '')	{
-			return true;
+			return true; //allow blank aliases
+			
 		}
 		else {
 			if ($node_id == -1) { //we are adding a route
@@ -309,12 +326,14 @@ class RouteBehavior extends ModelBehavior {
 			$numMatches = 0;
 			$numMatches = $this->Route->find('count', $params);
 
+			
 			if ($numMatches > 0) {
 				return false;
 			}
 			else {
 				return true;
 			}
+			
 		}
 	}
 		

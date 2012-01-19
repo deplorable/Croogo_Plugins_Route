@@ -80,8 +80,10 @@ class Route extends RouteAppModel {
 	 */
 	function doesAliasExist($check) {
 		$id = -1;
-		if (isset($this->data['Route']['id'])) {
-			$id = $this->data['Route']['id'];
+		
+		
+		if (isset($this->request->data['Route']['id'])) {
+			$id = $this->request->data['Route']['id'];
 		}
 	
 		$params = array('conditions' => 

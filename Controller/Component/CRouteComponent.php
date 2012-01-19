@@ -56,7 +56,15 @@ class CRouteComponent extends Component {
 	function initialize(&$controller) {
 		// saving the controller reference for later use
 		$this->controller =& $controller;
-		$this->Route = ClassRegistry::init('Route.Route');;		
+		
+		//pr($this->controller);
+		//die();
+		$this->Route = ClassRegistry::init('Route.Route');
+		
+		//custom node settings 
+		if ($this->controller->name == 'Nodes') {
+			$this->controller->Security->disabledFields = array('route_alias');
+		}
 	}
 
 	/**
@@ -194,6 +202,8 @@ class CRouteComponent extends Component {
 
 		return $resultArray;
 	}
+	
+	
 }
 		
 ?>
