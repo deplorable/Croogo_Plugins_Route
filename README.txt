@@ -13,12 +13,10 @@ Instalation
 
 2. Activate plugin
 
-3. Ensure plugin's generated_routes/all.php file is writable by the webserver process. You can test this by going to the Extensions>Route>List Routes page and clicking on "Manually Regenerate Custom Routes File". If the file is not writable, an error will display. Keep trying to Manually Regenerate the Custom Routes File after changing the file permissions or owner (user/group) of the file. Eventually you will get it working!
+3. Ensure Plugin/Route/Config/routes.php file is writable by the webserver process. You can test this by going to the Extensions>Route>List Routes page and clicking on "Manually Regenerate Custom Routes File". If the file is not writable, an error will display. Keep trying to Manually Regenerate the Custom Routes File after changing the file permissions or owner (user/group) of the file. Eventually you will get it working!
 
-4. Manually edit your app/Config/croogo_routes.php file, adding the following line to the bottom:
-   include_once('../Plugin/Route/generated_routes/all.php'); 
-
-5. Go to Content>List, and edit a node you have created earlier. (or create one if there are no nodes already). You should see a "Route" tab. Enter the name of the alias you wish to use for the node. Aliases must not begin with a slash or backslash, and can only include alphanumeric characters, underscores and slashes or backslashes. 
+4. Go to Content>List, and edit a node you have created earlier. (or create one if there are no nodes already). You should see a "Route" tab. Enter the name of the alias you wish to use for the node. Aliases must not begin with a slash or backslash, and can only include alphanumeric characters, underscores and slashes or backslashes. 
+   
    Here are a few examples for acceptable aliases:
    about-us
    about_us
@@ -28,9 +26,9 @@ Instalation
    yourstuff/really-really-really/sucks
    NOTE: Take care not to conflict with any of the default routes present!
 
-6. Save the Node and the custom routes file will update, as long as it is writable.
+5. Save the Node and the custom routes file will update, as long as it is writable.
 
-7. Go to Extensions>Route>List Routes and you should see the alias you entered with a slash at the beginning as a hyperlink. Clicking on it should take	you to view the node.
+6. Go to Extensions>Route>List Routes and you should see the alias you entered with a slash at the beginning as a hyperlink. Clicking on it should take	you to view the node.
 
 NOTE #1: Take care not to conflict with any of the default routes present in croogo_routes.php file, or in the Config/[pluginname]_routes.php file of other plugins!	 
 
