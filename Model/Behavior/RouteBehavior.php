@@ -89,6 +89,29 @@ class RouteBehavior extends ModelBehavior {
 	}*/
 	
 	/**
+	 * afterDelete callback
+	 * Invoked after a Node is deleted
+	 *
+	 * @param object  $model
+	 */	
+	public function afterDelete(&$model) {
+		if ($model->name == 'Node') {
+			//see if a route exists for this node
+			//lets look for the node_id in the Routes table
+			$node_id = $model->data['Node']['id'];
+			$params = array('conditions' => array('Route.node_id' => $node_id));
+			$this->Route = ClassRegistry::init('Route.Route');;		
+			$matchingRoute = $this->Route->find('first', $params);
+			if ($matchingRoute != null) { //let's delete the matching route
+				$routeID = $matchingRoute['Route']['id'];
+				$this->Route->delete($routeID);
+				clearCache();
+				$this->write_custom_routes_file();
+			}
+		}
+	}
+	
+	/**
 	 * afterSave callback
 	 * Invoked after a Node is saved/edited
 	 *
@@ -99,71 +122,67 @@ class RouteBehavior extends ModelBehavior {
 
 		if ($model->alias == 'Node') {
 			$data = $model->data['Node'];
-			$route_alias = $data['route_alias'];
-			//disabled route_status checkboxes don't submit any data'
-			//assume they are disabled and checked if not defined
-			if (!isset($data['route_status'])) {
-				$route_status = 0;
-			}
-			else {
-				$route_status = $data['route_status'];
-			}
-	
-			if (isset($data['id'])) {
-				$node_id = $data['id'];
-			}
-			else {
-				$node_id = $model->id;
-			}
-
-			//lets look for the node_id in the Routes table
-			$params = array('conditions' => array('Route.node_id' => $node_id));
-			$this->Route = ClassRegistry::init('Route.Route');;		
-			$matchingRoute = $this->Route->find('first', $params);
 			
-			
-			if ($matchingRoute != null) { //let's update our route with the new path 
-				if ((trim($route_alias)) == '') {
-					//empty alias - delete the route id
-					$route_id = $matchingRoute['Route']['id'];
-					$this->Route->delete($route_id, false);
-				}
-				else { 
-					//non-empty alias
-					$route_id = $matchingRoute['Route']['id'];
-					$this->Route->id = $route_id;
-
-					$this->Route->saveField('alias', $route_alias);
-					
-					$this->Route->saveField('status', $route_status);
-
-					$this->Route->saveField('body', "array('controller' => 'nodes', 'action' => 'view', 'type' => '".$data['type']."', ".$node_id.")");
-				}
-			}
-			else {
-				//create a new route that points to the node 
-				$this->Route->create();
-				$this->data = array();
-				$this->data['Route'] = array();
-				$this->data['Route']['alias'] = $route_alias;
-				$this->data['Route']['node_id'] = $node_id;
-				$this->data['Route']['body'] = "array('controller' => 'nodes', 'action' => 'view', 'type' => '".$data['type']."', ".$node_id.")";
-				$this->data['Route']['status'] = $route_status;
-				if ($this->Route->save($this->data)) {
-					//Saved	
-					//$this->Session->setFlash(__('Route saved'), 'default', array('class' => 'error'));
+			//this statement prevents code from executing when node is deleted
+			if (isset($data['route_alias'])) { 
+				$route_alias = $data['route_alias'];
+				//disabled route_status checkboxes don't submit any data'
+				//assume they are disabled and checked if not defined
+				if (!isset($data['route_status'])) {
+					$route_status = 0;
 				}
 				else {
-					//Not Saved
-					//$this->Session->setFlash(__('Problem saving route'), 'default', array('class' => 'error'));
-					
+					$route_status = $data['route_status'];
 				}
+		
+				if (isset($data['id'])) {
+					$node_id = $data['id'];
+				}
+				else {
+					$node_id = $model->id;
+				}
+
+				//lets look for the node_id in the Routes table
+				$params = array('conditions' => array('Route.node_id' => $node_id));
+				$this->Route = ClassRegistry::init('Route.Route');;		
+				$matchingRoute = $this->Route->find('first', $params);
+				
+				if ($matchingRoute != null) { //let's update our route with the new path 
+					if ((trim($route_alias)) == '') {
+						//empty alias - delete the route id
+						$route_id = $matchingRoute['Route']['id'];
+						$this->Route->delete($route_id, false);
+					}
+					else { 
+						//non-empty alias
+						$route_id = $matchingRoute['Route']['id'];
+						$this->Route->id = $route_id;
+
+						$this->Route->saveField('alias', $route_alias);
+						$this->Route->saveField('status', $route_status);
+						$this->Route->saveField('body', "array('controller' => 'nodes', 'action' => 'view', 'type' => '".$data['type']."', ".$node_id.")");
+					}
+				}
+				else {
+					//create a new route that points to the node 
+					$this->Route->create();
+					$this->data = array();
+					$this->data['Route'] = array();
+					$this->data['Route']['alias'] = $route_alias;
+					$this->data['Route']['node_id'] = $node_id;
+					$this->data['Route']['body'] = "array('controller' => 'nodes', 'action' => 'view', 'type' => '".$data['type']."', ".$node_id.")";
+					$this->data['Route']['status'] = $route_status;
+					if ($this->Route->save($this->data)) {
+						//Saved	
+					}
+					else {
+						//Not Saved
+					}
+				}
+				
+				clearCache();
+				$this->write_custom_routes_file();
 			}
-
-			clearCache();
-
-			$this->write_custom_routes_file();
-			
 		}
 	}
 		
